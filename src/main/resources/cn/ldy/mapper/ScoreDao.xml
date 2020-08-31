@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.ldy.mapper.ScoreDao">
+<resultMap id="selectMap" type="cn.ldy.bean.Score">
+    <id column="id" property="id"/>
+    <result column="score" property="score"/>
+    <association property="student" javaType="cn.ldy.bean.Student" >
+    <result column="name" property="name"/>
+    </association>
+    <association property="course" javaType="cn.ldy.bean.Course">
+        <result column="cname" property="cname"/>
+    </association>
+</resultMap>
+    <sql id="base_colums">
+<!--            `id`,`sid`,`cid`,`score`-->
+        sc.`id`,st.`name`,c.`cname`,`score`
+    </sql>
+    <sql id="base_where">
+        <if test="id!=null">
+           and sc.`id`=#{id,jdbcType=INTEGER}
+        </if>
+        <if test="sid!=null">
+            and sid=#{sid,jdbcType=INTEGER}
+        </if>
+        <if test="cid!=null">
+            and cid=#{cid,jdbcType=INTEGER}
+        </if>
+        <if test="score!=null">
+            and score=#{score,jdbcType=DOUBLE}
+        </if>
+       
+    </sql>
+    <sql id="base_insert_colums">
+        <trim suffixOverrides=",">
+            <if test="id!=null">
+                id,
+            </if>
+            <if test="sid!=null">
+                sid,
+            </if>
+            <if test="cid!=null">
+                cid,
+            </if>
+            <if test="score!=null">
+                score,
+            </if>
+        </trim>
+
+    </sql>
+    <sql id="base_insert_values">
+        <trim suffixOverrides=",">
+            <if test="id!=null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="sid!=null">
+                #{sid,jdbcType=INTEGER},
+            </if>
+            <if test="cid!=null">
+                #{cid,jdbcType=INTEGER},
+            </if>
+            <if test="score!=null">
+                #{score,jdbcType=DOUBLE},
+            </if>
+        </trim>
+    </sql>
+    <select id="find" resultMap="selectMap" >
+        select <include refid="base_colums"></include>
+        from score sc
+        inner join student st
+        on sc.sid=st.id
+        inner join course c
+        on sc.cid=c.id
+        <where>
+            <include refid="base_where"></include>
+        </where>
+    </select>
+
+    <insert id="insert" parameterType="Score" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
+        insert into `score` (<include refid="base_insert_colums"></include>)
+        values (<include refid="base_insert_values"></include>)
+    </insert>
+
+    <delete id="delete" parameterType="Score">
+        delete sc from score sc
+        <where>
+            <include refid="base_where"></include>
+        </where>
+    </delete>
+    <update id="update" parameterType="Score">
+        update score
+        set `score` =#{score.score,jdbcType=DOUBLE}
+        where id=#{id}
+    </update>
+
+</mapper>
